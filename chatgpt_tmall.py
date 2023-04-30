@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify
 
 # 配置OpenAI API密钥
 openai.api_key = "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"
+openai.api_base = "https://api.181999.xyz"
 
 app = Flask(__name__)
 
