@@ -9,7 +9,7 @@ pip3 install openai requests flask
 
 # 创建应用目录并下载Python脚本
 mkdir /opt/chatgpt_tmall
-wget -O /opt/chatgpt_tmall/chatgpt_tmall.py "https://raw.githubusercontent.com/yourusername/yourrepo/main/chatgpt_tmall.py"
+wget -O /opt/chatgpt_tmall/chatgpt_tmall.py "https://raw.githubusercontent.com/maxage/chatgpt-prompts-zh/main/chatgpt_tmall.py"
 
 # 配置防火墙以允许所有端口的流量
 apt install -y ufw
