@@ -1,39 +1,35 @@
-#!/bin/bash
+import openai
+import requests
+from flask import Flask, request, jsonify
 
-# 更新软件包列表和安装基本软件包
-apt update && apt upgrade -y
-apt install -y python3 python3-pip
+# 配置OpenAI API密钥
+openai.api_key = "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"
 
-# 安装所需的Python库
-pip3 install openai requests flask
+app = Flask(__name__)
 
-# 创建应用目录并下载Python脚本
-mkdir /opt/chatgpt_tmall
-wget -O /opt/chatgpt_tmall/chatgpt_tmall.py "https://raw.githubusercontent.com/maxage/chatgpt-prompts-zh/main/chatgpt_tmall.py"
+# 定义与ChatGPT交互的函数
+def tmall_genie_chat(user_input):
+    prompt = f"与天猫精灵用户的对话：\n用户：{user_input}\n天猫精灵："
+    
+    response = openai.Completion.create(
+        engine="gpt-3.5-turbo",
+        prompt=prompt,
+        max_tokens=50,
+        n=1,
+        stop=None,
+        temperature=0.5
+    )
 
-# 配置防火墙以允许所有端口的流量
-apt install -y ufw
-ufw allow proto tcp from any to any
-ufw allow proto udp from any to any
-ufw --force enable
+    chat_response = response.choices[0].text.strip()
+    return chat_response
 
-# 创建systemd服务以在后台运行Python脚本
-cat > /etc/systemd/system/chatgpt_tmall.service <<EOL
-[Unit]
-Description=ChatGPT Tmall Genie Integration
-After=network.target
+# 定义一个路由处理天猫精灵发来的POST请求
+@app.route('/chat', methods=['POST'])
+def chat():
+    data = request.json
+    user_input = data["user_input"]
+    chat_response = tmall_genie_chat(user_input)
+    return jsonify({"response": chat_response})
 
-[Service]
-User=root
-WorkingDirectory=/opt/chatgpt_tmall
-ExecStart=/usr/bin/python3 /opt/chatgpt_tmall/chatgpt_tmall.py
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOL
-
-# 启用并启动服务
-systemctl daemon-reload
-systemctl enable chatgpt_tmall
-systemctl start chatgpt_tmall
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
